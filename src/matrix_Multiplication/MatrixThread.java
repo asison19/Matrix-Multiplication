@@ -8,16 +8,15 @@ public class MatrixThread extends Thread{
 	int n;
 	int p;
 	
-	int i;
-	int j;
+	int i = 0;
+	int j = 0;
 	int k;
 	
-	public MatrixThread(float[][] A, float[][] B, float[][] C, int m, int n, int p) {
+	public MatrixThread(float[][] A, float[][] B, float[][] C, int m, int p) {
 		this.A = A;
 		this.B = B;
 		this.C = C;
 		this.m = m;
-		this.n = n;
 		this.p = p;
 	}
 	
@@ -36,10 +35,10 @@ public class MatrixThread extends Thread{
 
 	}
 	
-	public void setIJK(int i, int j, int k) {
-		this.i = i;
-		this.j = j;
+	public void setBound(int k, int n) {
+
 		this.k = k;
+		this.n = n;
 	}
 
 }

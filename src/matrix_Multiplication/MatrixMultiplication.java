@@ -6,9 +6,9 @@ import java.util.Timer;
 public class MatrixMultiplication {
 	
 	public static void main(String[] args) {
-		int m = 400;
-		int n = 400;
-		int p = 400;
+		int m = 320;
+		int n = 320;
+		int p = 320;
 		
 		float[][] A = new float[m][n];
 		float[][] B = new float[n][p];
@@ -67,8 +67,8 @@ public class MatrixMultiplication {
 		long startTime = System.nanoTime();
 
 		MatrixThread mThread1 = null;
-		mThread1 = new MatrixThread(A, B, C, m, n, p);
-		mThread1.setIJK(0, 0, n/2);
+		mThread1 = new MatrixThread(A, B, C, m, p);
+		mThread1.setBound(n/2, n);
 		mThread1.start();
 		
 		for(int i = 0; i < m; i++) {
@@ -90,20 +90,26 @@ public class MatrixMultiplication {
 		long endTime = System.nanoTime();
 		long totalTime = endTime - startTime;
 		
-		System.out.println("Total time for " + m + " x " + p + " matrix: " + totalTime + " nanoseconds  using 2 threads.");
+		System.out.println("Total time for " + m + " x " + p + " matrix: " + totalTime + " nanoseconds using 2 threads.");
 	}
 	
 	private static void matMult_multipleThreads(float[][] A, float[][] B, float[][] C, int m, int n, int p, int threadAmount) {
 		long startTime = System.nanoTime();
 
-		MatrixThread[] mThreads = new MatrixThread[threadAmount];
+		MatrixThread[] mThreads = new MatrixThread[threadAmount - 1];
 		
-		for(int i = 0; i < threadAmount; i++) {
-			mThreads[i] = new MatrixThread(A, B, C, m, n, p);
-			mThreads[i].setIJK(0, 0, n/threadAmount);
+		/*
+		 * creates another (thread - 1) total extra threads.
+		 * setBound gives it the parts of array C that it should work on
+		 */
+		for(int i = 0; i < threadAmount - 1; i++) {
+			mThreads[i] = new MatrixThread(A, B, C, m, p);
+			mThreads[i].setBound((n/threadAmount + (i * (n/threadAmount)))
+					, ((2 * (n/threadAmount)) + (i * (n/threadAmount))));	//problem lies here, they're all doing the same thing
 			mThreads[i].start();
 		}
-		
+
+		//0 to n/threadAmount
 		for(int i = 0; i < m; i++) {
 			for(int j = 0; j < p; j++) {
 				for(int k = 0; k < n/threadAmount; k++) {
@@ -114,7 +120,7 @@ public class MatrixMultiplication {
 		boolean allThreadsDead = false;
 		while(!allThreadsDead) {
 			try {
-				for(int i = 0;i < threadAmount; i++) {
+				for(int i = 0;i < threadAmount- 1; i++) {
 					mThreads[i].join();
 					allThreadsDead = true;
 				}
@@ -153,3 +159,11 @@ public class MatrixMultiplication {
 		}
 	}
 }
+/* Example Output:
+Total time for 320 x 320 matrix: 114153711 nanoseconds using 1 thread.
+Total time for 320 x 320 matrix: 127858752 nanoseconds using 2 threads.
+Total time for 320 x 320 matrix: 151084898 nanoseconds using 4 threads.
+Total time for 320 x 320 matrix: 70959619 nanoseconds using 8 threads.
+Total time for 320 x 320 matrix: 63806903 nanoseconds using 16 threads.
+Total time for 320 x 320 matrix: 120966376 nanoseconds using 32 threads.
+ */
