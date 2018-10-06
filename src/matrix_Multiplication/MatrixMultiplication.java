@@ -80,13 +80,13 @@ public class MatrixMultiplication {
 				}
 			}
 		}
-		while(mThread1.isAlive()) {
-			try {
-				mThread1.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+
+		try {
+			mThread1.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
+
 		long endTime = System.nanoTime();
 		long totalTime = endTime - startTime;
 		
@@ -117,17 +117,16 @@ public class MatrixMultiplication {
 				}
 			}
 		}
-		boolean allThreadsDead = false;
-		while(!allThreadsDead) {
-			try {
-				for(int i = 0;i < threadAmount- 1; i++) {
-					mThreads[i].join();
-					allThreadsDead = true;
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		
+		try {
+			for(int i = 0;i < threadAmount- 1; i++) {
+				mThreads[i].join();
+
 			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
+
 		long endTime = System.nanoTime();
 		long totalTime = endTime - startTime;
 		
