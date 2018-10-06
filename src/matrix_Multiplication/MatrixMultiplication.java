@@ -6,9 +6,9 @@ import java.util.Timer;
 public class MatrixMultiplication {
 	
 	public static void main(String[] args) {
-		int m = 300;
-		int n = 300;
-		int p = 300;
+		int m = 400;
+		int n = 400;
+		int p = 400;
 		
 		float[][] A = new float[m][n];
 		float[][] B = new float[n][p];
@@ -16,7 +16,12 @@ public class MatrixMultiplication {
 		
 		createRandomNumbers(A, m, n);
 		createRandomNumbers(B, n, p);
-		createRandomNumbers(C, m, p);
+		setZeroesTo2dArray(C);
+		
+		
+		//fillWithOnes(A,m,n);
+		//fillWithOnes(B,n,p);
+		//setZeroesTo2dArray(C);
 		
 		matMult(A, B, C, m, n, p);
 		setZeroesTo2dArray(C);
@@ -48,7 +53,7 @@ public class MatrixMultiplication {
 		for(int i = 0; i < m; i++) {
 			for(int j = 0; j < p; j++) {
 				for(int k = 0; k < n; k++) {
-					C[i][j] += A[i][k] * B[k][j];
+					C[i][j] += (A[i][k] * B[k][j]);
 				}
 			}
 		}
@@ -61,14 +66,17 @@ public class MatrixMultiplication {
 	private static void matMult_2Threads(float[][] A, float[][] B, float[][] C, int m, int n, int p) {
 		long startTime = System.nanoTime();
 
-		MatrixThread mThread1 = new MatrixThread(A, B, C, m, n, p);
-		mThread1.setIJK(m/2, p/2, n/2);
+		MatrixThread mThread1 = null;
+		mThread1 = new MatrixThread(A, B, C, m, n, p);
+		mThread1.setIJK(0, 0, n/2);
 		mThread1.start();
 		
-		for(int i = 0; i < m/2; i++) {
-			for(int j = 0; j < p/2; j++) {
+		for(int i = 0; i < m; i++) {
+			for(int j = 0; j < p; j++) {
 				for(int k = 0; k < n/2; k++) {
+					
 					C[i][j] += A[i][k] * B[k][j];
+					
 				}
 			}
 		}
@@ -92,12 +100,12 @@ public class MatrixMultiplication {
 		
 		for(int i = 0; i < threadAmount; i++) {
 			mThreads[i] = new MatrixThread(A, B, C, m, n, p);
-			mThreads[i].setIJK(m/threadAmount, p/threadAmount, n/threadAmount);
+			mThreads[i].setIJK(0, 0, n/threadAmount);
 			mThreads[i].start();
 		}
 		
-		for(int i = 0; i < m/threadAmount; i++) {
-			for(int j = 0; j < p/threadAmount; j++) {
+		for(int i = 0; i < m; i++) {
+			for(int j = 0; j < p; j++) {
 				for(int k = 0; k < n/threadAmount; k++) {
 					C[i][j] += A[i][k] * B[k][j];
 				}
@@ -133,6 +141,14 @@ public class MatrixMultiplication {
 		for(int i = 0; i < columns; i++) {
 			for(int j = 0; j < rows; j++) {
 				arr[i][j] = rand.nextFloat();
+			}
+		}
+	}
+	
+	private static void fillWithOnes(float[][] arr, int columns, int rows) {
+		for(int i = 0; i < columns; i++) {
+			for(int j = 0; j < rows; j++) {
+				arr[i][j] = (float) 1.0;
 			}
 		}
 	}
