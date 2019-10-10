@@ -1,0 +1,10 @@
+# Don't track these 
+
+# Eclipse project files
+.settings/
+bin/
+.classpath
+.project
+
+# Other
+*.java~

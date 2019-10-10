@@ -1,5 +1,4 @@
 package matrix_Multiplication;
-import java.util.concurrent.Phaser;
 import java.util.Random;
 import java.util.Timer;
 
@@ -26,18 +25,28 @@ public class MatrixMultiplication {
 		matMult(A, B, C, m, n, p);
 		setZeroesTo2dArray(C);
 		
-		matMult_2Threads(A, B, C, m, n, p);
+		fillWithOnes(A,m,n);
+		fillWithOnes(B,n,p);
+		matMult_multipleThreads(A, B, C, m, n, p, 2);
 		setZeroesTo2dArray(C);
 		
+		fillWithOnes(A,m,n);
+		fillWithOnes(B,n,p);
 		matMult_multipleThreads(A, B, C, m, n, p, 4);
 		setZeroesTo2dArray(C);
 		
+		fillWithOnes(A,m,n);
+		fillWithOnes(B,n,p);
 		matMult_multipleThreads(A, B, C, m, n, p, 8);
 		setZeroesTo2dArray(C);
 		
+		fillWithOnes(A,m,n);
+		fillWithOnes(B,n,p);
 		matMult_multipleThreads(A, B, C, m, n, p, 16);
 		setZeroesTo2dArray(C);
 		
+		fillWithOnes(A,m,n);
+		fillWithOnes(B,n,p);
 		matMult_multipleThreads(A, B, C, m, n, p, 32);
 		setZeroesTo2dArray(C);
 		
@@ -63,59 +72,22 @@ public class MatrixMultiplication {
 		System.out.println("Total time for " + m + " x " + p + " matrix: " + totalTime + " nanoseconds using 1 thread.");
 		
 	}
-	private static void matMult_2Threads(float[][] A, float[][] B, float[][] C, int m, int n, int p) {
-		long startTime = System.nanoTime();
-
-		MatrixThread mThread1 = null;
-		mThread1 = new MatrixThread(A, B, C, m, p);
-		mThread1.setBound(n/2, n);
-		mThread1.start();
-		
-		for(int i = 0; i < m; i++) {
-			for(int j = 0; j < p; j++) {
-				for(int k = 0; k < n/2; k++) {
-					
-					C[i][j] += A[i][k] * B[k][j];
-					
-				}
-			}
-		}
-
-		try {
-			mThread1.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		long endTime = System.nanoTime();
-		long totalTime = endTime - startTime;
-		
-		System.out.println("Total time for " + m + " x " + p + " matrix: " + totalTime + " nanoseconds using 2 threads.");
-	}
 	
 	private static void matMult_multipleThreads(float[][] A, float[][] B, float[][] C, int m, int n, int p, int threadAmount) {
 		long startTime = System.nanoTime();
 
-		MatrixThread[] mThreads = new MatrixThread[threadAmount - 1];
+		MatrixThread[] mThreads = new MatrixThread[threadAmount];
 		
 		/*
-		 * creates another (thread - 1) total extra threads.
+		 * creates another (thread) total extra threads.
 		 * setBound gives it the parts of array C that it should work on
 		 */
-		for(int i = 0; i < threadAmount - 1; i++) {
-			mThreads[i] = new MatrixThread(A, B, C, m, p);
-			mThreads[i].setBound((n/threadAmount + (i * (n/threadAmount)))
-					, ((2 * (n/threadAmount)) + (i * (n/threadAmount))));	//problem lies here, they're all doing the same thing
+		for(int i = 0; i < threadAmount; i++) {
+			mThreads[i] = new MatrixThread(A, B, C, m, n,p);
+			// mThreads[i].setBound((n/threadAmount + (i * (n/threadAmount))), ((2 * (n/threadAmount)) + (i * (n/threadAmount))));	//problem lies here, they're all doing the same thing
+			mThreads[i].setBound(i *(threadAmount/m), (i *(threadAmount/m)) + (threadAmount/m),
+								 i *(threadAmount/p), (i *(threadAmount/p)) + (threadAmount/p));
 			mThreads[i].start();
-		}
-
-		//0 to n/threadAmount
-		for(int i = 0; i < m; i++) {
-			for(int j = 0; j < p; j++) {
-				for(int k = 0; k < n/threadAmount; k++) {
-					C[i][j] += A[i][k] * B[k][j];
-				}
-			}
 		}
 		
 		try {
